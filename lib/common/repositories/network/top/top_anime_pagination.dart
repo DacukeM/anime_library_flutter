@@ -1,3 +1,4 @@
+import 'package:dio/dio.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../../../di/di.dart';
@@ -10,6 +11,7 @@ part 'top_anime_pagination.g.dart';
 class TopAnimePagination extends _$TopAnimePagination {
   static const String tag = '+++TopAnimePagination';
   final _topDataSource = getIt<TopDataSourceNetwork>();
+  CancelToken? _cancelToken;
   List<Anime> _anime = [];
   int _page = 1;
   bool _hasNextPage = true;
@@ -35,15 +37,23 @@ class TopAnimePagination extends _$TopAnimePagination {
     _isLoading = true;
     _hasError = false;
 
+    _cancelToken?.cancel("Cancel by user");
+    _cancelToken = CancelToken();
+
     state = const AsyncLoading();
 
-    final result = await _topDataSource.getTopAnime(page: _page);
+    final result = await _topDataSource.getTopAnime(
+      page: _page,
+      cancelToken: _cancelToken,
+    );
 
     _isLoading = false;
+    _cancelToken = null;
+
     result.when(
       success: (data) {
         _hasNextPage = data.pagination.hasNextPage;
-        _anime = data.data;
+        _anime.addAll(data.data);
         _page++;
         state = AsyncData(null);
       },
@@ -52,5 +62,18 @@ class TopAnimePagination extends _$TopAnimePagination {
         state = AsyncError(error, StackTrace.current);
       },
     );
+  }
+
+  Future<void> refreshTopAnime() async {
+    _hasNextPage = true;
+    _anime = [];
+    _page = 1;
+    await fetchTopAnime();
+
+  }
+
+  Future<void> loadMoreTopAnime() async {
+    if (_isLoading || !_hasNextPage) return;
+    await fetchTopAnime();
   }
 }

@@ -14,6 +14,7 @@ abstract class TopClient {
 
   @GET("/top/anime")
   Future<HttpResponse<PaginatedResponse<Anime>>> getTopAnime(
-    @Query('page') int? page,
-  );
+    @Query('page') int? page, {
+    @CancelRequest() CancelToken? cancelToken,
+  });
 }
