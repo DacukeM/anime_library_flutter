@@ -50,37 +50,40 @@ class _TopAnimeScreenState extends ConsumerState<TopAnimeScreen> {
     }
 
     return SafeArea(
-      child: RefreshIndicator(
-        onRefresh: () async {
-          _refresh();
-        },
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: _margin),
-          child: GridView.builder(
-            shrinkWrap: true,
-            itemCount: animeList.length + (isLoading || hasError ? 1 : 0),
-            controller: _scrollController,
-            physics: const AlwaysScrollableScrollPhysics(),
-            itemBuilder: (context, index) {
-              if (index == animeList.length) {
-                return Center(
-                  child: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: isLoading
-                        ? const CircularProgressIndicator()
-                        : RetryButton(onRetryPressed: () => _loadNextPage()),
-                  ),
-                );
-              }
-              final anime = animeList[index];
+      child: Scaffold(
+        appBar: AppBar(title: const Text("Top Anime")),
+        body: RefreshIndicator(
+          onRefresh: () async {
+            _refresh();
+          },
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: _margin),
+            child: GridView.builder(
+              shrinkWrap: true,
+              itemCount: animeList.length + (isLoading || hasError ? 1 : 0),
+              controller: _scrollController,
+              physics: const AlwaysScrollableScrollPhysics(),
+              itemBuilder: (context, index) {
+                if (index == animeList.length) {
+                  return Center(
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: isLoading
+                          ? const CircularProgressIndicator()
+                          : RetryButton(onRetryPressed: () => _loadNextPage()),
+                    ),
+                  );
+                }
+                final anime = animeList[index];
 
-              return AnimeRow(anime: anime);
-            },
-            gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-              maxCrossAxisExtent: 200, // max width per tile
-              mainAxisExtent: 320,
-              mainAxisSpacing: _margin,
-              crossAxisSpacing: _margin,
+                return AnimeRow(anime: anime);
+              },
+              gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+                maxCrossAxisExtent: 200, // max width per tile
+                mainAxisExtent: 320,
+                mainAxisSpacing: _margin,
+                crossAxisSpacing: _margin,
+              ),
             ),
           ),
         ),
@@ -135,6 +138,8 @@ class AnimeRow extends StatelessWidget {
                   child: CachedNetworkImage(
                     fit: BoxFit.cover,
                     imageUrl: anime.images.jpg.largeImageUrl ?? "",
+                    placeholder: (context, url) =>
+                        const Center(child: CircularProgressIndicator()),
                   ),
                 ),
                 Positioned(
@@ -152,25 +157,26 @@ class AnimeRow extends StatelessWidget {
                     ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
+                      spacing: 10,
                       children: [
-                        Row(
-                          children: [
-                            const Icon(
-                              Icons.star,
-                              color: Colors.amber,
-                              size: 16,
-                            ),
-                            const SizedBox(width: 5),
-                            Text(
-                              anime.score.toString(),
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 14, // Adjust the font size as needed
+                        if (anime.score != null)
+                          Row(
+                            children: [
+                              const Icon(
+                                Icons.star,
+                                color: Colors.amber,
+                                size: 16,
                               ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 10),
+                              const SizedBox(width: 5),
+                              Text(
+                                anime.score.toString(),
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 14,
+                                ),
+                              ),
+                            ],
+                          ),
                         Row(
                           children: [
                             const Icon(
@@ -179,12 +185,15 @@ class AnimeRow extends StatelessWidget {
                               size: 16,
                             ),
                             const SizedBox(width: 5),
-                            Text(
-                              anime.aired?.from.toString().substring(0, 10) ??
-                                  "",
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 14, // Adjust the font size as needed
+                            Expanded(
+                              child: Text(
+                                anime.aired?.string ?? "",
+                                overflow: TextOverflow.ellipsis,
+                                maxLines: 1,
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 14, // Adjust the font size as needed
+                                ),
                               ),
                             ),
                           ],

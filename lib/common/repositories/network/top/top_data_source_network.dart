@@ -12,10 +12,19 @@ class TopDataSourceNetwork {
 
   Future<Result<PaginatedResponse<Anime>>> getTopAnime({
     int page = 1,
+    String? animeSearchQueryType,
+    String? filter,
+    String? rating,
     CancelToken? cancelToken,
   }) async {
     return handleRequest(
-      () => _topClient.getTopAnime(page, cancelToken: cancelToken),
+      () => _topClient.getTopAnime(
+        page,
+        animeSearchQueryType: animeSearchQueryType,
+        topAnimeFilter: filter,
+        rating: rating,
+        cancelToken: cancelToken,
+      ),
       "getTopAnime",
     );
   }
