@@ -2,8 +2,10 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import '../common/repositories/network/responses/models.dart';
 import '../main.dart';
-import '../ui/top_anime_screen.dart';
+import '../ui/anime/anime_details_screen.dart';
+import '../ui/top/top_anime_screen.dart';
 
 final GoRouter router = GoRouter(
   initialLocation: '/home', // Set the initial route
@@ -63,6 +65,13 @@ final GoRouter router = GoRouter(
           ],
         ),
       ],
+    ),
+    GoRoute(
+      path: AnimeDetailsScreen.routeName,
+      name: AnimeDetailsScreen.routeName,
+      builder: (BuildContext context, GoRouterState state) {
+        return AnimeDetailsScreen(initialAnime: state.extra as Anime?);
+      },
     ),
   ],
 );

@@ -26,6 +26,26 @@ class PaginatedResponse<T> {
   }
 }
 
+@JsonSerializable(genericArgumentFactories: true)
+class DataResponse<T> {
+  final T data;
+
+  DataResponse({required this.data});
+
+  // Generic fromJson
+  factory DataResponse.fromJson(
+    Map<String, dynamic> json,
+    T Function(Object? json) fromJsonT,
+  ) {
+    return _$DataResponseFromJson<T>(json, fromJsonT);
+  }
+
+  // Generic toJson
+  Map<String, dynamic> toJson(Object Function(T value) toJsonT) {
+    return _$DataResponseToJson<T>(this, toJsonT);
+  }
+}
+
 // --- Pagination ---
 
 @JsonSerializable()
@@ -75,20 +95,20 @@ class PaginationItems {
 @JsonSerializable(fieldRename: FieldRename.snake)
 class Anime {
   final int malId;
-  final String url;
-  final Images images;
+  final String? url;
+  final Images? images;
   final Trailer? trailer;
-  final bool approved;
-  final List<TitleEntry> titles;
+  final bool? approved;
+  final List<TitleEntry>? titles;
   final String? title;
   final String? titleEnglish;
   final String? titleJapanese;
-  final List<String> titleSynonyms;
+  final List<String>? titleSynonyms;
   final String? type;
   final String? source;
   final int? episodes;
   final String? status;
-  final bool airing;
+  final bool? airing;
   final Aired? aired;
   final String? duration;
   final String? rating;
@@ -105,30 +125,30 @@ class Anime {
   final Broadcast? broadcast;
 
   // Reusable MalEntry
-  final List<MalEntry> producers;
-  final List<MalEntry> licensors;
-  final List<MalEntry> studios;
-  final List<MalEntry> genres;
-  final List<MalEntry> explicitGenres;
-  final List<MalEntry> themes;
-  final List<MalEntry> demographics;
+  final List<MalEntry>? producers;
+  final List<MalEntry>? licensors;
+  final List<MalEntry>? studios;
+  final List<MalEntry>? genres;
+  final List<MalEntry>? explicitGenres;
+  final List<MalEntry>? themes;
+  final List<MalEntry>? demographics;
 
   Anime({
     required this.malId,
-    required this.url,
-    required this.images,
+    this.url,
+    this.images,
     this.trailer,
-    required this.approved,
-    required this.titles,
+    this.approved,
+    this.titles,
     this.title,
     this.titleEnglish,
     this.titleJapanese,
-    required this.titleSynonyms,
+    this.titleSynonyms,
     this.type,
     this.source,
     this.episodes,
     this.status,
-    required this.airing,
+    this.airing,
     this.aired,
     this.duration,
     this.rating,
@@ -143,13 +163,13 @@ class Anime {
     this.season,
     this.year,
     this.broadcast,
-    required this.producers,
-    required this.licensors,
-    required this.studios,
-    required this.genres,
-    required this.explicitGenres,
-    required this.themes,
-    required this.demographics,
+    this.producers,
+    this.licensors,
+    this.studios,
+    this.genres,
+    this.explicitGenres,
+    this.themes,
+    this.demographics,
   });
 
   factory Anime.fromJson(Map<String, dynamic> json) => _$AnimeFromJson(json);
@@ -161,17 +181,12 @@ class Anime {
 
 @JsonSerializable(fieldRename: FieldRename.snake)
 class MalEntry {
-  final int malId;
-  final String type;
-  final String name;
-  final String url;
+  final int? malId;
+  final String? type;
+  final String? name;
+  final String? url;
 
-  MalEntry({
-    required this.malId,
-    required this.type,
-    required this.name,
-    required this.url,
-  });
+  MalEntry({this.malId, this.type, this.name, this.url});
 
   factory MalEntry.fromJson(Map<String, dynamic> json) =>
       _$MalEntryFromJson(json);

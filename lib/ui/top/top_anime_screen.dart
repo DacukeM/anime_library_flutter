@@ -1,10 +1,12 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
-import '../common/repositories/network/responses/models.dart';
-import '../common/repositories/network/top/top_anime_pagination.dart';
-import '../components/retry_button.dart';
+import '../../common/repositories/network/responses/models.dart';
+import '../../common/repositories/network/top/top_anime_pagination.dart';
+import '../../components/retry_button.dart';
+import '../anime/anime_details_screen.dart';
 
 class TopAnimeScreen extends ConsumerStatefulWidget {
   static const navigationKey = "/top_anime_screen";
@@ -127,96 +129,102 @@ class AnimeRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    return Column(
-      children: [
-        Expanded(
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(10),
-            child: Stack(
-              children: [
-                Positioned.fill(
-                  child: CachedNetworkImage(
-                    fit: BoxFit.cover,
-                    imageUrl: anime.images.jpg.largeImageUrl ?? "",
-                    placeholder: (context, url) =>
-                        const Center(child: CircularProgressIndicator()),
-                  ),
-                ),
-                Positioned(
-                  bottom: 0,
-                  left: 0,
-                  right: 0,
-                  child: Container(
-                    padding: const EdgeInsets.all(10),
-                    decoration: const BoxDecoration(
-                      gradient: LinearGradient(
-                        begin: Alignment.bottomCenter,
-                        end: Alignment.topCenter,
-                        colors: [Colors.black, Colors.transparent],
-                      ),
+    return InkWell(
+      onTap: () {
+        context.pushNamed(AnimeDetailsScreen.routeName, extra: anime);
+      },
+      child: Column(
+        children: [
+          Expanded(
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(10),
+              child: Stack(
+                children: [
+                  Positioned.fill(
+                    child: CachedNetworkImage(
+                      fit: BoxFit.cover,
+                      imageUrl: anime.images?.jpg.largeImageUrl ?? "",
+                      placeholder: (context, url) =>
+                          const Center(child: CircularProgressIndicator()),
                     ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      spacing: 10,
-                      children: [
-                        if (anime.score != null)
+                  ),
+                  Positioned(
+                    bottom: 0,
+                    left: 0,
+                    right: 0,
+                    child: Container(
+                      padding: const EdgeInsets.all(10),
+                      decoration: const BoxDecoration(
+                        gradient: LinearGradient(
+                          begin: Alignment.bottomCenter,
+                          end: Alignment.topCenter,
+                          colors: [Colors.black, Colors.transparent],
+                        ),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        spacing: 10,
+                        children: [
+                          if (anime.score != null)
+                            Row(
+                              children: [
+                                const Icon(
+                                  Icons.star,
+                                  color: Colors.amber,
+                                  size: 16,
+                                ),
+                                const SizedBox(width: 5),
+                                Text(
+                                  anime.score.toString(),
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 14,
+                                  ),
+                                ),
+                              ],
+                            ),
                           Row(
                             children: [
                               const Icon(
-                                Icons.star,
-                                color: Colors.amber,
+                                Icons.calendar_today,
+                                color: Colors.white,
                                 size: 16,
                               ),
                               const SizedBox(width: 5),
-                              Text(
-                                anime.score.toString(),
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 14,
+                              Expanded(
+                                child: Text(
+                                  anime.aired?.string ?? "",
+                                  overflow: TextOverflow.ellipsis,
+                                  maxLines: 1,
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize:
+                                        14, // Adjust the font size as needed
+                                  ),
                                 ),
                               ),
                             ],
                           ),
-                        Row(
-                          children: [
-                            const Icon(
-                              Icons.calendar_today,
-                              color: Colors.white,
-                              size: 16,
-                            ),
-                            const SizedBox(width: 5),
-                            Expanded(
-                              child: Text(
-                                anime.aired?.string ?? "",
-                                overflow: TextOverflow.ellipsis,
-                                maxLines: 1,
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 14, // Adjust the font size as needed
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
-        ),
-        const SizedBox(height: 10),
-        Text(
-          '${anime.title ?? ""}\n',
-          maxLines: 2,
-          textAlign: TextAlign.center,
-          style: theme.textTheme.bodyMedium?.copyWith(
-            fontWeight: FontWeight.bold,
-            fontSize: 16,
+          const SizedBox(height: 10),
+          Text(
+            '${anime.title ?? ""}\n',
+            maxLines: 2,
+            textAlign: TextAlign.center,
+            style: theme.textTheme.bodyMedium?.copyWith(
+              fontWeight: FontWeight.bold,
+              fontSize: 16,
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }

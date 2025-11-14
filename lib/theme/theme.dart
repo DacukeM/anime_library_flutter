@@ -208,7 +208,7 @@ class AnimeLibraryTheme {
     const primary = Color(0xFF4A5BDA);
     const secondary = Color(0xFFF57AC5);
     const background = Color(0xFF121336);
-    const surface = Color(0xFF1E1F47);
+    const surface = Color(0xFF121336);
     const textPrimary = Colors.white;
     const textSecondary = Color(0xFFB0B3D9);
 
@@ -265,7 +265,7 @@ class AnimeLibraryTheme {
     const primary = Color(0xFF4A5BDA);
     const secondary = Color(0xFFF57AC5);
     const background = Color(0xFFF8F8FF);
-    const surface = Color(0xFFFFFFFF);
+    const surface = Color(0xFFF8F8FF);
     const textPrimary = Color(0xFF1C1C2E);
     const textSecondary = Color(0xFF5A5B80);
 

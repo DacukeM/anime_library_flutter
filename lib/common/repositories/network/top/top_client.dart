@@ -3,7 +3,7 @@ import 'package:retrofit/dio.dart';
 import 'package:retrofit/error_logger.dart';
 import 'package:retrofit/http.dart';
 
-import '../../../../utils/constants.dart';
+import '../../../../utils/constants/constants.dart';
 import '../responses/models.dart';
 
 part 'top_client.g.dart';
