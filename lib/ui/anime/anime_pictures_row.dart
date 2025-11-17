@@ -1,0 +1,79 @@
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import '../../common/repositories/network/anime/anime_pictures_provider.dart';
+import '../../utils/constants/app_dimensions.dart';
+
+class AnimePicturesRow extends ConsumerStatefulWidget {
+  final int? animeId;
+
+  const AnimePicturesRow({super.key, required this.animeId});
+
+  @override
+  ConsumerState createState() => _AnimePicturesRowState();
+}
+
+class _AnimePicturesRowState extends ConsumerState<AnimePicturesRow> {
+  @override
+  void initState() {
+    super.initState();
+    Future.microtask(() {
+      ref
+          .read(animePicturesProviderProvider.notifier)
+          .fetchAnimePicturesById(widget.animeId);
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final asyncNotifier = ref.watch(animePicturesProviderProvider);
+
+    return asyncNotifier.when(
+      data: (pictures) {
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 8.0),
+              child: Text(
+                "Pictures",
+                style: theme.textTheme.titleLarge?.copyWith(
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+            SizedBox(
+              height: 200,
+              child: ListView.separated(
+                shrinkWrap: true,
+                scrollDirection: Axis.horizontal,
+                itemBuilder: (BuildContext context, int index) {
+                  return ClipRRect(
+                    borderRadius: BorderRadius.circular(
+                      AppDimensions.borderRadiusSmall,
+                    ),
+                    child: CachedNetworkImage(
+                      imageUrl: pictures?[index].jpg.largeImageUrl ?? "",
+                    ),
+                  );
+                },
+                separatorBuilder: (BuildContext context, int index) {
+                  return const SizedBox(width: 10);
+                },
+                itemCount: pictures?.length ?? 0,
+              ),
+            ),
+          ],
+        );
+      },
+      error: (e, st) {
+        return Center(child: Text(e.toString()));
+      },
+      loading: () {
+        return const Center(child: CircularProgressIndicator());
+      },
+    );
+  }
+}

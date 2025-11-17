@@ -17,4 +17,16 @@ abstract class AnimeClient {
     @Path() int id, {
     @CancelRequest() CancelToken? cancelToken,
   });
+
+  @GET("/anime/{id}/statistics")
+  Future<HttpResponse<AnimeStatisticsResponse>> getStatisticsById(
+    @Path() int id, {
+    @CancelRequest() CancelToken? cancelToken,
+  });
+
+  @GET("/anime/{id}/pictures")
+  Future<HttpResponse<AnimePicturesResponse>> getPicturesById(
+    @Path() int id, {
+    @CancelRequest() CancelToken? cancelToken,
+  });
 }

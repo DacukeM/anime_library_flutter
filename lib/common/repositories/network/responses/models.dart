@@ -302,3 +302,67 @@ class Broadcast {
 
   Map<String, dynamic> toJson() => _$BroadcastToJson(this);
 }
+
+
+@JsonSerializable()
+class AnimePicturesResponse {
+  final List<Images> data;
+
+  AnimePicturesResponse({required this.data});
+
+  factory AnimePicturesResponse.fromJson(Map<String, dynamic> json) =>
+      _$AnimePicturesResponseFromJson(json);
+  Map<String, dynamic> toJson() => _$AnimePicturesResponseToJson(this);
+}
+
+@JsonSerializable()
+class AnimeStatisticsResponse {
+  final AnimeStatistics data;
+
+  AnimeStatisticsResponse({required this.data});
+
+  factory AnimeStatisticsResponse.fromJson(Map<String, dynamic> json) =>
+      _$AnimeStatisticsResponseFromJson(json);
+  Map<String, dynamic> toJson() => _$AnimeStatisticsResponseToJson(this);
+}
+
+@JsonSerializable(fieldRename: FieldRename.snake)
+class AnimeStatistics {
+  final int watching;
+  final int completed;
+  final int onHold;
+  final int dropped;
+  final int planToWatch;
+  final int total;
+  final List<Score> scores;
+
+  AnimeStatistics({
+    required this.watching,
+    required this.completed,
+    required this.onHold,
+    required this.dropped,
+    required this.planToWatch,
+    required this.total,
+    required this.scores,
+  });
+
+  factory AnimeStatistics.fromJson(Map<String, dynamic> json) =>
+      _$AnimeStatisticsFromJson(json);
+  Map<String, dynamic> toJson() => _$AnimeStatisticsToJson(this);
+}
+
+@JsonSerializable()
+class Score {
+  final int score;
+  final int votes;
+  final double percentage;
+
+  Score({
+    required this.score,
+    required this.votes,
+    required this.percentage,
+  });
+
+  factory Score.fromJson(Map<String, dynamic> json) => _$ScoreFromJson(json);
+  Map<String, dynamic> toJson() => _$ScoreToJson(this);
+}

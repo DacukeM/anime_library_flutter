@@ -7,6 +7,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../common/repositories/network/anime/anime_by_id_provider.dart';
 import '../../common/repositories/network/responses/models.dart';
 import '../../utils/constants/app_dimensions.dart';
+import 'anime_pictures_row.dart';
+import 'anime_statistics_row.dart';
 
 class AnimeDetailsScreen extends ConsumerStatefulWidget {
   static const routeName = '/anime-details';
@@ -102,6 +104,22 @@ class _AnimeDetailsScreenState extends ConsumerState<AnimeDetailsScreen> {
                       AnimeDescription(
                         description: _initialAnime?.synopsis ?? "",
                       ),
+                      const SizedBox.shrink(),
+                      Divider(
+                        height: 0,
+                        color: theme.colorScheme.onSurface.withValues(
+                          alpha: 0.2,
+                        ),
+                      ),
+                      AnimeStatisticsRow(animeId: _initialAnime?.malId),
+                      const SizedBox.shrink(),
+                      Divider(
+                        height: 0,
+                        color: theme.colorScheme.onSurface.withValues(
+                          alpha: 0.2,
+                        ),
+                      ),
+                      AnimePicturesRow(animeId: _initialAnime?.malId),
                     ],
                   ),
                 ),
@@ -376,7 +394,7 @@ class _AnimeDescriptionState extends State<AnimeDescription> {
           child: Text(
             _isExpanded ? "Less" : "More...",
             style: theme.textTheme.titleMedium?.copyWith(
-              color: theme.primaryColor
+              color: theme.primaryColor,
             ),
           ),
         ),

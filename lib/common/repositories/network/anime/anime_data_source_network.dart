@@ -19,4 +19,24 @@ class AnimeDataSourceNetwork {
       "getAnimeById",
     );
   }
+
+  Future<Result<AnimeStatisticsResponse>> getAnimeStatisticsById({
+    required int id,
+    CancelToken? cancelToken,
+  }) async {
+    return handleRequest(
+      () => _animeClient.getStatisticsById(id, cancelToken: cancelToken),
+      "getAnimeStatisticsById",
+    );
+  }
+
+  Future<Result<AnimePicturesResponse>> getAnimePicturesById({
+    required int id,
+    CancelToken? cancelToken,
+  }) async {
+    return handleRequest(
+      () => _animeClient.getPicturesById(id, cancelToken: cancelToken),
+      "getAnimePicturesById",
+    );
+  }
 }
