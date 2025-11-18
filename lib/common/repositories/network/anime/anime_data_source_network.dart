@@ -39,4 +39,17 @@ class AnimeDataSourceNetwork {
       "getAnimePicturesById",
     );
   }
+
+  Future<Result<AnimeRecommendationResponse>> getAnimeRecommendationsById({
+    required int id,
+    CancelToken? cancelToken,
+  }) async {
+    return handleRequest(
+      () => _animeClient.getAnimeRecommendationsById(
+        id,
+        cancelToken: cancelToken,
+      ),
+      "getAnimeRecommendationsById",
+    );
+  }
 }

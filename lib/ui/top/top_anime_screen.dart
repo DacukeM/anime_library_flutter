@@ -131,7 +131,11 @@ class AnimeRow extends StatelessWidget {
 
     return InkWell(
       onTap: () {
-        context.pushNamed(AnimeDetailsScreen.routeName, extra: anime);
+        context.pushNamed(
+          AnimeDetailsScreen.routeName,
+          pathParameters: {'id': anime.malId.toString()},
+          extra: anime,
+        );
       },
       child: Column(
         children: [

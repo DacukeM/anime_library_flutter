@@ -20,7 +20,7 @@ class _AnimeStatisticsState extends ConsumerState<AnimeStatisticsRow> {
     super.initState();
     Future.microtask(() {
       ref
-          .read(animeStatisticsProviderProvider.notifier)
+          .read(animeStatisticsProviderProvider(widget.animeId).notifier)
           .fetchAnimeStatisticsById(widget.animeId);
     });
   }
@@ -28,10 +28,15 @@ class _AnimeStatisticsState extends ConsumerState<AnimeStatisticsRow> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final asyncNotifier = ref.watch(animeStatisticsProviderProvider);
+    final asyncNotifier = ref.watch(
+      animeStatisticsProviderProvider(widget.animeId),
+    );
 
     return asyncNotifier.when(
       data: (statistics) {
+        if (statistics == null) {
+          return const Center(child: Text('No statistics available.'));
+        }
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [

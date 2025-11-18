@@ -67,7 +67,8 @@ final GoRouter router = GoRouter(
       ],
     ),
     GoRoute(
-      path: AnimeDetailsScreen.routeName,
+      // path: AnimeDetailsScreen.routeName,
+      path: "${AnimeDetailsScreen.routeName}/:id",
       name: AnimeDetailsScreen.routeName,
       builder: (BuildContext context, GoRouterState state) {
         return AnimeDetailsScreen(initialAnime: state.extra as Anime?);

@@ -8,6 +8,7 @@ import '../../common/repositories/network/anime/anime_by_id_provider.dart';
 import '../../common/repositories/network/responses/models.dart';
 import '../../utils/constants/app_dimensions.dart';
 import 'anime_pictures_row.dart';
+import 'anime_recommendations_row.dart';
 import 'anime_statistics_row.dart';
 
 class AnimeDetailsScreen extends ConsumerStatefulWidget {
@@ -30,7 +31,9 @@ class _AnimeDetailsScreenState extends ConsumerState<AnimeDetailsScreen> {
     Future.microtask(() {
       _initialAnime = widget.initialAnime;
       if (_initialAnime != null) {
-        final notifier = ref.read(animeByIdProviderProvider.notifier);
+        final notifier = ref.read(
+          animeByIdProviderProvider(widget.initialAnime?.malId).notifier,
+        );
         notifier.setInitialAnime(_initialAnime);
         notifier.fetchAnimeById(_initialAnime?.malId);
       }
@@ -40,8 +43,12 @@ class _AnimeDetailsScreenState extends ConsumerState<AnimeDetailsScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final notifier = ref.read(animeByIdProviderProvider.notifier);
-    final asyncNotifier = ref.watch(animeByIdProviderProvider);
+    final notifier = ref.read(
+      animeByIdProviderProvider(widget.initialAnime?.malId).notifier,
+    );
+    final asyncNotifier = ref.watch(
+      animeByIdProviderProvider(widget.initialAnime?.malId),
+    );
 
     _initialAnime = notifier.anime;
 
@@ -120,6 +127,14 @@ class _AnimeDetailsScreenState extends ConsumerState<AnimeDetailsScreen> {
                         ),
                       ),
                       AnimePicturesRow(animeId: _initialAnime?.malId),
+                      const SizedBox.shrink(),
+                      Divider(
+                        height: 0,
+                        color: theme.colorScheme.onSurface.withValues(
+                          alpha: 0.2,
+                        ),
+                      ),
+                      AnimeRecommendationsRow(animeId: _initialAnime?.malId),
                     ],
                   ),
                 ),

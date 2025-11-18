@@ -20,7 +20,7 @@ class _AnimePicturesRowState extends ConsumerState<AnimePicturesRow> {
     super.initState();
     Future.microtask(() {
       ref
-          .read(animePicturesProviderProvider.notifier)
+          .read(animePicturesProviderProvider(widget.animeId).notifier)
           .fetchAnimePicturesById(widget.animeId);
     });
   }
@@ -28,7 +28,7 @@ class _AnimePicturesRowState extends ConsumerState<AnimePicturesRow> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final asyncNotifier = ref.watch(animePicturesProviderProvider);
+    final asyncNotifier = ref.watch(animePicturesProviderProvider(widget.animeId));
 
     return asyncNotifier.when(
       data: (pictures) {
@@ -60,7 +60,9 @@ class _AnimePicturesRowState extends ConsumerState<AnimePicturesRow> {
                   );
                 },
                 separatorBuilder: (BuildContext context, int index) {
-                  return const SizedBox(width: 10);
+                  return const SizedBox(
+                    width: AppDimensions.defaultPageHorizontalPadding,
+                  );
                 },
                 itemCount: pictures?.length ?? 0,
               ),

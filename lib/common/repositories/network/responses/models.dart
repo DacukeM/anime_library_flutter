@@ -366,3 +366,45 @@ class Score {
   factory Score.fromJson(Map<String, dynamic> json) => _$ScoreFromJson(json);
   Map<String, dynamic> toJson() => _$ScoreToJson(this);
 }
+
+
+@JsonSerializable()
+class AnimeRecommendationResponse {
+  final List<AnimeRecommendation> data;
+
+  AnimeRecommendationResponse({required this.data});
+
+  factory AnimeRecommendationResponse.fromJson(Map<String, dynamic> json) =>
+      _$AnimeRecommendationResponseFromJson(json);
+  Map<String, dynamic> toJson() => _$AnimeRecommendationResponseToJson(this);
+}
+
+@JsonSerializable()
+class AnimeRecommendation {
+  final AnimeRecommendationEntry entry;
+
+  AnimeRecommendation({required this.entry});
+
+  factory AnimeRecommendation.fromJson(Map<String, dynamic> json) =>
+      _$AnimeRecommendationFromJson(json);
+  Map<String, dynamic> toJson() => _$AnimeRecommendationToJson(this);
+}
+
+@JsonSerializable(fieldRename: FieldRename.snake)
+class AnimeRecommendationEntry {
+  final int malId;
+  final String url;
+  final Images images; // Reusing the existing Images class
+  final String title;
+
+  AnimeRecommendationEntry({
+    required this.malId,
+    required this.url,
+    required this.images,
+    required this.title,
+  });
+
+  factory AnimeRecommendationEntry.fromJson(Map<String, dynamic> json) =>
+      _$AnimeRecommendationEntryFromJson(json);
+  Map<String, dynamic> toJson() => _$AnimeRecommendationEntryToJson(this);
+}

@@ -1,5 +1,3 @@
-import 'dart:ui';
-
 import 'package:dio/dio.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
@@ -16,7 +14,7 @@ class AnimePicturesProvider extends _$AnimePicturesProvider {
   CancelToken? _cancelToken;
 
   @override
-  FutureOr<List<Images>?> build() => null;
+  FutureOr<List<Images>?> build(int? id) => null;
 
   Future<void> fetchAnimePicturesById(int? id) async {
     print('+++ id = $id');

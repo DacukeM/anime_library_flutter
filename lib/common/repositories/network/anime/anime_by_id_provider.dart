@@ -23,7 +23,7 @@ class AnimeByIdProvider extends _$AnimeByIdProvider {
   Anime? get anime => _anime;
 
   @override
-  FutureOr<void> build() {}
+  FutureOr<void> build(int? id) {}
 
   Future<void> setInitialAnime(Anime? anime) async {
     _anime = anime;

@@ -14,7 +14,7 @@ class AnimeStatisticsProvider extends _$AnimeStatisticsProvider {
   CancelToken? _cancelToken;
 
   @override
-  FutureOr<AnimeStatistics?> build() => null;
+  FutureOr<AnimeStatistics?> build(int? id) => null;
 
   Future<void> fetchAnimeStatisticsById(int? id) async {
     print('+++ id = $id');

@@ -29,4 +29,10 @@ abstract class AnimeClient {
     @Path() int id, {
     @CancelRequest() CancelToken? cancelToken,
   });
+
+  @GET("/anime/{id}/recommendations")
+  Future<HttpResponse<AnimeRecommendationResponse>> getAnimeRecommendationsById(
+    @Path() int id, {
+    @CancelRequest() CancelToken? cancelToken,
+  });
 }
