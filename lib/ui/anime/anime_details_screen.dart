@@ -196,19 +196,29 @@ class AnimeImage extends StatelessWidget {
             ),
           ),
         ),
-        Card(
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(10),
-            child: CachedNetworkImage(
-              imageUrl: imageUrl ?? "",
-              height: _imageSize,
-              placeholder: (context, url) {
-                return const Center(child: CircularProgressIndicator());
-              },
-              errorWidget: (context, url, error) => Center(
-                child: Text(
-                  error.toString(),
-                  style: const TextStyle(color: Colors.red),
+        GestureDetector(
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => FullScreenImageViewer(imageUrl: imageUrl ?? ""),
+              ),
+            );
+          },
+          child: Card(
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(10),
+              child: CachedNetworkImage(
+                imageUrl: imageUrl ?? "",
+                height: _imageSize,
+                placeholder: (context, url) {
+                  return const Center(child: CircularProgressIndicator());
+                },
+                errorWidget: (context, url, error) => Center(
+                  child: Text(
+                    error.toString(),
+                    style: const TextStyle(color: Colors.red),
+                  ),
                 ),
               ),
             ),
@@ -361,7 +371,6 @@ class AnimeGenres extends StatelessWidget {
     for (int i = 0; i < genres.length; i++) {
       final genre = genres[i];
       final genreName = genre.name;
-      final genreUrl = genre.url;
 
       listOfGenres.add(
         TextSpan(
@@ -424,3 +433,38 @@ class _AnimeDescriptionState extends State<AnimeDescription> {
     );
   }
 }
+
+class FullScreenImageViewer extends StatelessWidget {
+  final String imageUrl;
+
+  const FullScreenImageViewer({super.key, required this.imageUrl});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.black,
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        leading: const CloseButton(color: Colors.white),
+      ),
+      extendBodyBehindAppBar: true,
+      body: Center(
+        child: InteractiveViewer(
+          minScale: 0.5,
+          maxScale: 4.0,
+          child: CachedNetworkImage(
+            imageUrl: imageUrl,
+            fit: BoxFit.contain,
+            placeholder: (context, url) =>
+                const Center(child: CircularProgressIndicator(color: Colors.white)),
+            errorWidget: (context, url, error) => const Center(
+              child: Icon(Icons.broken_image_outlined, color: Colors.grey, size: 48),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+

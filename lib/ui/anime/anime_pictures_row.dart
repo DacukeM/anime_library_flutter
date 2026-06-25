@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../common/repositories/network/anime/anime_pictures_provider.dart';
 import '../../utils/constants/app_dimensions.dart';
+import 'anime_details_screen.dart';
 
 class AnimePicturesRow extends ConsumerStatefulWidget {
   final int? animeId;
@@ -50,19 +51,32 @@ class _AnimePicturesRowState extends ConsumerState<AnimePicturesRow> {
                 shrinkWrap: true,
                 scrollDirection: Axis.horizontal,
                 itemBuilder: (BuildContext context, int index) {
-                  return ClipRRect(
-                    borderRadius: BorderRadius.circular(
-                      AppDimensions.borderRadiusSmall,
-                    ),
-                    child: CachedNetworkImage(
-                      imageUrl: pictures?[index].jpg.largeImageUrl ?? "",
-                      width: 130,
-                      height: 200,
-                      fit: BoxFit.cover,
-                      placeholder: (context, url) =>
-                          const Center(child: CircularProgressIndicator()),
-                      errorWidget: (context, url, error) => const Center(
-                        child: Icon(Icons.broken_image_outlined, color: Colors.grey),
+                  final imageUrl = pictures?[index].jpg.largeImageUrl ?? "";
+                  return GestureDetector(
+                    onTap: () {
+                      if (imageUrl.isNotEmpty) {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => FullScreenImageViewer(imageUrl: imageUrl),
+                          ),
+                        );
+                      }
+                    },
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(
+                        AppDimensions.borderRadiusSmall,
+                      ),
+                      child: CachedNetworkImage(
+                        imageUrl: imageUrl,
+                        width: 130,
+                        height: 200,
+                        fit: BoxFit.cover,
+                        placeholder: (context, url) =>
+                            const Center(child: CircularProgressIndicator()),
+                        errorWidget: (context, url, error) => const Center(
+                          child: Icon(Icons.broken_image_outlined, color: Colors.grey),
+                        ),
                       ),
                     ),
                   );

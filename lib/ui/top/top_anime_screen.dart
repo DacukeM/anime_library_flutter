@@ -2,6 +2,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:shimmer/shimmer.dart';
 
 import '../../common/repositories/network/responses/models.dart';
 import '../../common/repositories/network/top/top_anime_pagination.dart';
@@ -51,7 +52,18 @@ class _TopAnimeScreenState extends ConsumerState<TopAnimeScreen> {
 
     if (animeList.isEmpty) {
       if (isLoading) {
-        bodyWidget = const Center(child: CircularProgressIndicator());
+        bodyWidget = GridView.builder(
+          shrinkWrap: true,
+          itemCount: 6,
+          physics: const NeverScrollableScrollPhysics(),
+          gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+            maxCrossAxisExtent: 200,
+            mainAxisExtent: 320,
+            mainAxisSpacing: _margin,
+            crossAxisSpacing: _margin,
+          ),
+          itemBuilder: (context, index) => const AnimeRowShimmer(),
+        );
       } else if (hasError) {
         bodyWidget = Center(
           child: Column(
@@ -228,6 +240,7 @@ class _TopAnimeScreenState extends ConsumerState<TopAnimeScreen> {
                     context: context,
                     label: "Type",
                     value: type,
+                    prefixIcon: const Icon(Icons.movie_filter_outlined),
                     items: const [
                       DropdownMenuItem(value: null, child: Text("All")),
                       DropdownMenuItem(value: "TV", child: Text("TV")),
@@ -249,6 +262,7 @@ class _TopAnimeScreenState extends ConsumerState<TopAnimeScreen> {
                     context: context,
                     label: "Filter Type",
                     value: filter,
+                    prefixIcon: const Icon(Icons.sort_rounded),
                     items: const [
                       DropdownMenuItem(value: null, child: Text("All")),
                       DropdownMenuItem(value: "airing", child: Text("Airing")),
@@ -265,6 +279,7 @@ class _TopAnimeScreenState extends ConsumerState<TopAnimeScreen> {
                     context: context,
                     label: "Rating",
                     value: rating,
+                    prefixIcon: const Icon(Icons.explicit_outlined),
                     items: const [
                       DropdownMenuItem(value: null, child: Text("All")),
                       DropdownMenuItem(value: "g", child: Text("G - All Ages")),
@@ -280,6 +295,7 @@ class _TopAnimeScreenState extends ConsumerState<TopAnimeScreen> {
 
                   // SFW Switch
                   SwitchListTile(
+                    secondary: const Icon(Icons.security_outlined),
                     title: const Text(
                       "Safe for Work (SFW)",
                       style: TextStyle(fontWeight: FontWeight.w600),
@@ -305,6 +321,7 @@ class _TopAnimeScreenState extends ConsumerState<TopAnimeScreen> {
     required T? value,
     required List<DropdownMenuItem<T>> items,
     required ValueChanged<T?> onChanged,
+    Widget? prefixIcon,
   }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -322,6 +339,7 @@ class _TopAnimeScreenState extends ConsumerState<TopAnimeScreen> {
           items: items,
           onChanged: onChanged,
           decoration: InputDecoration(
+            prefixIcon: prefixIcon,
             contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(10),
@@ -467,6 +485,58 @@ class AnimeRow extends StatelessWidget {
             style: theme.textTheme.bodyMedium?.copyWith(
               fontWeight: FontWeight.bold,
               fontSize: 16,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class AnimeRowShimmer extends StatelessWidget {
+  const AnimeRowShimmer({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+    final baseColor = isDark ? Colors.grey[800]! : Colors.grey[300]!;
+    final highlightColor = isDark ? Colors.grey[700]! : Colors.grey[100]!;
+
+    return Shimmer.fromColors(
+      baseColor: baseColor,
+      highlightColor: highlightColor,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Expanded(
+            child: Container(
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(10),
+              ),
+            ),
+          ),
+          const SizedBox(height: 10),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+            child: Container(
+              height: 16,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(4),
+              ),
+            ),
+          ),
+          const SizedBox(height: 6),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 32.0),
+            child: Container(
+              height: 16,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(4),
+              ),
             ),
           ),
         ],

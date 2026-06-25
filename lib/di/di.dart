@@ -20,7 +20,7 @@ Future<void> setupDI() async {
         validateStatus: (status) => true,
       ),
     );
-    dio.interceptors.add(RateLimitInterceptor());
+    // dio.interceptors.add(RateLimitInterceptor());
     return dio;
   });
 

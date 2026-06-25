@@ -26,20 +26,15 @@ void main() {
       ]);
     });
 
-    test('should space out rapid consecutive requests by at least 334ms', () async {
+    test('should space out rapid consecutive requests after exceeding sliding window', () async {
       final stopwatch = Stopwatch()..start();
 
-      // Make 4 rapid requests
+      // Make 4 rapid requests. Under 3 req/sec limit, first 3 are instant, 4th waits 1s.
       final futures = List.generate(4, (_) => dio.get('/test'));
       await Future.wait(futures);
 
       stopwatch.stop();
 
-      // With 4 requests:
-      // Req 1: starts at ~0ms
-      // Req 2: starts at ~334ms
-      // Req 3: starts at ~668ms
-      // Req 4: starts at ~1002ms
       // Total elapsed time must be at least 1000ms.
       expect(stopwatch.elapsedMilliseconds, greaterThanOrEqualTo(1000));
     });
@@ -54,15 +49,50 @@ void main() {
       // The first request should complete almost instantly since there are no prior requests
       expect(stopwatch.elapsedMilliseconds, lessThan(100));
     });
-   group('RateLimitInterceptor Minute Limit Tests', () {
-      // For testing the minute limit of 60 requests.
-      // Since waiting for a full minute in a test is slow, we can test it using a subclass
-      // or verify the list behavior. But a quick check with 60 requests is also possible.
-      // Wait, 60 requests * 334ms = 20 seconds. That would take 20 seconds to run!
-      // We don't want tests to be extremely slow.
-      // To test the minute limit faster, we can verify that the scheduling logic calculates
-      // the correct times by exposing a helper or subclassing, or we can just stick to the
-      // per-second limit test. Let's keep it simple and fast.
+
+    test('should abort immediately and free up rate limit slot when request is cancelled during delay', () async {
+      final cancelToken = CancelToken();
+
+      // Send 3 requests (execute immediately, filling the sliding window)
+      await Future.wait([
+        dio.get('/test'),
+        dio.get('/test'),
+        dio.get('/test'),
+      ]);
+
+      final stopwatch = Stopwatch()..start();
+      
+      // Start the 4th request, which will have a 1-second delay
+      final future1 = dio.get('/test', cancelToken: cancelToken);
+      
+      // Cancel the 4th request after 50ms
+      await Future.delayed(const Duration(milliseconds: 50));
+      cancelToken.cancel('User cancelled request');
+
+      try {
+        await future1;
+      } on DioException catch (e) {
+        expect(e.type, DioExceptionType.cancel);
+      }
+
+      final elapsedAfterCancel = stopwatch.elapsedMilliseconds;
+      // Verified that the cancelled request aborted early (much sooner than 1000ms)
+      expect(elapsedAfterCancel, lessThan(150));
+
+      // Re-measure: because the cancelled 4th request reclaimed its slot,
+      // we should be able to send Requests 5, 6, and 7 all scheduled for 1000ms.
+      // If the slot was NOT reclaimed, Request 7 would be delayed to 2000ms.
+      await Future.wait([
+        dio.get('/test'),
+        dio.get('/test'),
+        dio.get('/test'),
+      ]);
+
+      stopwatch.stop();
+
+      // Total elapsed time should be around 1000ms (less than 1300ms)
+      // because Request 7 is allowed to run at 1000ms.
+      expect(stopwatch.elapsedMilliseconds, lessThan(1300));
     });
   });
 }
