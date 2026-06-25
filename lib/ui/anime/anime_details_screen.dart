@@ -284,17 +284,19 @@ class AnimeTitle extends StatelessWidget {
             padding: const EdgeInsets.only(top: 2.0),
             child: Icon(Icons.info_outline_rounded),
           ),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                titleEnglish ?? "",
-                style: theme.textTheme.titleLarge?.copyWith(
-                  fontWeight: FontWeight.bold,
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  titleEnglish ?? "",
+                  style: theme.textTheme.titleLarge?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
-              ),
-              Text(title ?? "", style: theme.textTheme.bodyMedium),
-            ],
+                Text(title ?? "", style: theme.textTheme.bodyMedium),
+              ],
+            ),
           ),
         ],
       ),
