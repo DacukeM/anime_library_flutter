@@ -69,7 +69,16 @@ class _AnimeRecommendationsRowState
                         child: CachedNetworkImage(
                           imageUrl:
                               recommendation?.entry.images.jpg.largeImageUrl ??
-                              "",
+                                  "",
+                          width: 130,
+                          height: 200,
+                          fit: BoxFit.cover,
+                          placeholder: (context, url) =>
+                              const Center(child: CircularProgressIndicator()),
+                          errorWidget: (context, url, error) => const Center(
+                            child: Icon(Icons.broken_image_outlined,
+                                color: Colors.grey),
+                          ),
                         ),
                       ),
                     ),

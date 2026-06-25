@@ -56,6 +56,14 @@ class _AnimePicturesRowState extends ConsumerState<AnimePicturesRow> {
                     ),
                     child: CachedNetworkImage(
                       imageUrl: pictures?[index].jpg.largeImageUrl ?? "",
+                      width: 130,
+                      height: 200,
+                      fit: BoxFit.cover,
+                      placeholder: (context, url) =>
+                          const Center(child: CircularProgressIndicator()),
+                      errorWidget: (context, url, error) => const Center(
+                        child: Icon(Icons.broken_image_outlined, color: Colors.grey),
+                      ),
                     ),
                   );
                 },

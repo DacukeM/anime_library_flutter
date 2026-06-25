@@ -19,6 +19,12 @@ class TopAnimePagination extends _$TopAnimePagination {
   bool _hasError = false;
   int _totalProducts = 0;
 
+  // Filter states
+  String? _type;
+  String? _filter;
+  String? _rating;
+  bool? _sfw;
+
   List<Anime> get anime => _anime;
 
   bool get isLoading => _isLoading;
@@ -28,6 +34,12 @@ class TopAnimePagination extends _$TopAnimePagination {
   bool get hasError => _hasError;
 
   int get totalProducts => _totalProducts;
+
+  // Getters for filters
+  String? get type => _type;
+  String? get filter => _filter;
+  String? get rating => _rating;
+  bool? get sfw => _sfw;
 
   @override
   FutureOr<void> build() {}
@@ -44,6 +56,10 @@ class TopAnimePagination extends _$TopAnimePagination {
 
     final result = await _topDataSource.getTopAnime(
       page: _page,
+      animeSearchQueryType: _type,
+      filter: _filter,
+      rating: _rating,
+      sfw: _sfw,
       cancelToken: _cancelToken,
     );
 
@@ -69,7 +85,44 @@ class TopAnimePagination extends _$TopAnimePagination {
     _anime = [];
     _page = 1;
     await fetchTopAnime();
+  }
 
+  void setType(String? value) {
+    if (_type != value) {
+      _type = value;
+      refreshTopAnime();
+    }
+  }
+
+  void setFilter(String? value) {
+    if (_filter != value) {
+      _filter = value;
+      refreshTopAnime();
+    }
+  }
+
+  void setRating(String? value) {
+    if (_rating != value) {
+      _rating = value;
+      refreshTopAnime();
+    }
+  }
+
+  void setSfw(bool? value) {
+    if (_sfw != value) {
+      _sfw = value;
+      refreshTopAnime();
+    }
+  }
+
+  void clearFilters() {
+    if (_type != null || _filter != null || _rating != null || _sfw != null) {
+      _type = null;
+      _filter = null;
+      _rating = null;
+      _sfw = null;
+      refreshTopAnime();
+    }
   }
 
   Future<void> loadMoreTopAnime() async {

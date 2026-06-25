@@ -42,54 +42,293 @@ class _TopAnimeScreenState extends ConsumerState<TopAnimeScreen> {
     final isLoading = notifier.isLoading;
     final hasError = notifier.hasError;
 
+    final hasActiveFilters = notifier.type != null ||
+        notifier.filter != null ||
+        notifier.rating != null ||
+        notifier.sfw == true;
+
+    Widget bodyWidget;
+
     if (animeList.isEmpty) {
       if (isLoading) {
-        return Text("No anime");
+        bodyWidget = const Center(child: CircularProgressIndicator());
+      } else if (hasError) {
+        bodyWidget = Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                "Error loading top anime\n${asyncNotifier.error}",
+                textAlign: TextAlign.center,
+                style: const TextStyle(color: Colors.red),
+              ),
+              const SizedBox(height: 10),
+              RetryButton(onRetryPressed: () => _refresh()),
+            ],
+          ),
+        );
+      } else {
+        bodyWidget = const Center(
+          child: Text(
+            "No anime found matching current filters.",
+            style: TextStyle(fontSize: 16),
+          ),
+        );
       }
-      if (hasError) {
-        return Text("Error, ${asyncNotifier.error}");
-      }
+    } else {
+      bodyWidget = GridView.builder(
+        shrinkWrap: true,
+        itemCount: animeList.length + (isLoading || hasError ? 1 : 0),
+        controller: _scrollController,
+        physics: const AlwaysScrollableScrollPhysics(),
+        itemBuilder: (context, index) {
+          if (index == animeList.length) {
+            return Center(
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: isLoading
+                    ? const CircularProgressIndicator()
+                    : RetryButton(onRetryPressed: () => _loadNextPage()),
+              ),
+            );
+          }
+          final anime = animeList[index];
+
+          return AnimeRow(anime: anime);
+        },
+        gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+          maxCrossAxisExtent: 200, // max width per tile
+          mainAxisExtent: 320,
+          mainAxisSpacing: _margin,
+          crossAxisSpacing: _margin,
+        ),
+      );
     }
 
     return SafeArea(
       child: Scaffold(
-        appBar: AppBar(title: const Text("Top Anime")),
-        body: RefreshIndicator(
-          onRefresh: () async {
-            _refresh();
-          },
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: _margin),
-            child: GridView.builder(
-              shrinkWrap: true,
-              itemCount: animeList.length + (isLoading || hasError ? 1 : 0),
-              controller: _scrollController,
-              physics: const AlwaysScrollableScrollPhysics(),
-              itemBuilder: (context, index) {
-                if (index == animeList.length) {
-                  return Center(
-                    child: Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: isLoading
-                          ? const CircularProgressIndicator()
-                          : RetryButton(onRetryPressed: () => _loadNextPage()),
-                    ),
-                  );
-                }
-                final anime = animeList[index];
-
-                return AnimeRow(anime: anime);
-              },
-              gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-                maxCrossAxisExtent: 200, // max width per tile
-                mainAxisExtent: 320,
-                mainAxisSpacing: _margin,
-                crossAxisSpacing: _margin,
+        appBar: AppBar(
+          title: const Text("Top Anime"),
+          actions: [
+            IconButton(
+              icon: Icon(
+                hasActiveFilters ? Icons.filter_list_alt : Icons.filter_list_rounded,
+                color: hasActiveFilters ? Theme.of(context).colorScheme.primary : null,
               ),
+              onPressed: () => _showFilterBottomSheet(context),
+            ),
+          ],
+        ),
+        body: Column(
+          children: [
+            if (hasActiveFilters) _buildActiveFiltersRow(context, notifier),
+            Expanded(
+              child: RefreshIndicator(
+                onRefresh: () async {
+                  _refresh();
+                },
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: _margin),
+                  child: bodyWidget,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildActiveFiltersRow(BuildContext context, TopAnimePagination notifier) {
+    return Container(
+      height: 50,
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        child: Row(
+          spacing: 8,
+          children: [
+            if (notifier.type != null)
+              InputChip(
+                label: Text("Type: ${notifier.type}"),
+                onDeleted: () => notifier.setType(null),
+              ),
+            if (notifier.filter != null)
+              InputChip(
+                label: Text("Filter: ${notifier.filter}"),
+                onDeleted: () => notifier.setFilter(null),
+              ),
+            if (notifier.rating != null)
+              InputChip(
+                label: Text("Rating: ${notifier.rating?.toUpperCase()}"),
+                onDeleted: () => notifier.setRating(null),
+              ),
+            if (notifier.sfw == true)
+              InputChip(
+                label: const Text("SFW: Yes"),
+                onDeleted: () => notifier.setSfw(null),
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _showFilterBottomSheet(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      useSafeArea: true,
+      showDragHandle: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) {
+        return Consumer(
+          builder: (context, ref, child) {
+            final notifier = ref.watch(topAnimePaginationProvider.notifier);
+            final type = notifier.type;
+            final filter = notifier.filter;
+            final rating = notifier.rating;
+            final sfw = notifier.sfw ?? false;
+
+            return Padding(
+              padding: EdgeInsets.only(
+                left: 20,
+                right: 20,
+                bottom: MediaQuery.of(context).viewInsets.bottom + 20,
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        "Filter Top Anime",
+                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                              fontWeight: FontWeight.bold,
+                            ),
+                      ),
+                      TextButton.icon(
+                        icon: const Icon(Icons.clear_all_rounded, size: 20),
+                        label: const Text("Reset"),
+                        onPressed: () {
+                          notifier.clearFilters();
+                          Navigator.pop(context);
+                        },
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 15),
+                  
+                  // Type Dropdown
+                  _buildDropdown<String>(
+                    context: context,
+                    label: "Type",
+                    value: type,
+                    items: const [
+                      DropdownMenuItem(value: null, child: Text("All")),
+                      DropdownMenuItem(value: "TV", child: Text("TV")),
+                      DropdownMenuItem(value: "OVA", child: Text("OVA")),
+                      DropdownMenuItem(value: "Movie", child: Text("Movie")),
+                      DropdownMenuItem(value: "Special", child: Text("Special")),
+                      DropdownMenuItem(value: "ONA", child: Text("ONA")),
+                      DropdownMenuItem(value: "Music", child: Text("Music")),
+                      DropdownMenuItem(value: "CM", child: Text("CM")),
+                      DropdownMenuItem(value: "PV", child: Text("PV")),
+                      DropdownMenuItem(value: "TV Special", child: Text("TV Special")),
+                    ],
+                    onChanged: (val) => notifier.setType(val),
+                  ),
+                  const SizedBox(height: 15),
+
+                  // Filter Dropdown
+                  _buildDropdown<String>(
+                    context: context,
+                    label: "Filter Type",
+                    value: filter,
+                    items: const [
+                      DropdownMenuItem(value: null, child: Text("All")),
+                      DropdownMenuItem(value: "airing", child: Text("Airing")),
+                      DropdownMenuItem(value: "upcoming", child: Text("Upcoming")),
+                      DropdownMenuItem(value: "bypopularity", child: Text("Popularity")),
+                      DropdownMenuItem(value: "favorite", child: Text("Favorite")),
+                    ],
+                    onChanged: (val) => notifier.setFilter(val),
+                  ),
+                  const SizedBox(height: 15),
+
+                  // Rating Dropdown
+                  _buildDropdown<String>(
+                    context: context,
+                    label: "Rating",
+                    value: rating,
+                    items: const [
+                      DropdownMenuItem(value: null, child: Text("All")),
+                      DropdownMenuItem(value: "g", child: Text("G - All Ages")),
+                      DropdownMenuItem(value: "pg", child: Text("PG - Children")),
+                      DropdownMenuItem(value: "pg13", child: Text("PG-13 - Teens 13+")),
+                      DropdownMenuItem(value: "r17", child: Text("R - 17+ (violence/profanity)")),
+                      DropdownMenuItem(value: "r", child: Text("R+ - Mild Nudity")),
+                      DropdownMenuItem(value: "rx", child: Text("Rx - Hentai")),
+                    ],
+                    onChanged: (val) => notifier.setRating(val),
+                  ),
+                  const SizedBox(height: 20),
+
+                  // SFW Switch
+                  SwitchListTile(
+                    title: const Text(
+                      "Safe for Work (SFW)",
+                      style: TextStyle(fontWeight: FontWeight.w600),
+                    ),
+                    subtitle: const Text("Filter out adult entries"),
+                    value: sfw,
+                    contentPadding: EdgeInsets.zero,
+                    onChanged: (val) => notifier.setSfw(val ? true : null),
+                  ),
+                  const SizedBox(height: 15),
+                ],
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
+  Widget _buildDropdown<T>({
+    required BuildContext context,
+    required String label,
+    required T? value,
+    required List<DropdownMenuItem<T>> items,
+    required ValueChanged<T?> onChanged,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                fontWeight: FontWeight.bold,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
+        ),
+        const SizedBox(height: 6),
+        DropdownButtonFormField<T>(
+          initialValue: value,
+          items: items,
+          onChanged: onChanged,
+          decoration: InputDecoration(
+            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10),
             ),
           ),
         ),
-      ),
+      ],
     );
   }
 
@@ -150,6 +389,9 @@ class AnimeRow extends StatelessWidget {
                       imageUrl: anime.images?.jpg.largeImageUrl ?? "",
                       placeholder: (context, url) =>
                           const Center(child: CircularProgressIndicator()),
+                      errorWidget: (context, url, error) => const Center(
+                        child: Icon(Icons.broken_image_outlined, color: Colors.grey),
+                      ),
                     ),
                   ),
                   Positioned(

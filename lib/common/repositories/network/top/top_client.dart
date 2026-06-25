@@ -19,6 +19,7 @@ abstract class TopClient {
     @Query('type') String? animeSearchQueryType,
     @Query('filter') String? topAnimeFilter,
     @Query('rating') String? rating,
+    @Query('sfw') bool? sfw,
     @CancelRequest() CancelToken? cancelToken,
   });
 }

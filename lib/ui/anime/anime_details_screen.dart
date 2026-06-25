@@ -170,10 +170,15 @@ class AnimeImage extends StatelessWidget {
       alignment: Alignment.center,
       children: [
         CachedNetworkImage(
+          imageUrl: imageUrl ?? "",
           width: double.infinity,
           height: _imageSize,
-          imageUrl: imageUrl ?? "",
           fit: BoxFit.cover,
+          placeholder: (context, url) =>
+              const Center(child: CircularProgressIndicator()),
+          errorWidget: (context, url, error) => const Center(
+            child: Icon(Icons.broken_image_outlined, color: Colors.grey, size: 48),
+          ),
         ),
         Container(
           width: double.infinity,

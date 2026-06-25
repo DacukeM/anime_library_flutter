@@ -15,6 +15,7 @@ class TopDataSourceNetwork {
     String? animeSearchQueryType,
     String? filter,
     String? rating,
+    bool? sfw,
     CancelToken? cancelToken,
   }) async {
     return handleRequest(
@@ -23,6 +24,7 @@ class TopDataSourceNetwork {
         animeSearchQueryType: animeSearchQueryType,
         topAnimeFilter: filter,
         rating: rating,
+        sfw: sfw,
         cancelToken: cancelToken,
       ),
       "getTopAnime",
